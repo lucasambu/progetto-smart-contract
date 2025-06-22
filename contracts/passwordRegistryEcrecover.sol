@@ -20,7 +20,7 @@ contract PasswordRegistryPlus {
 
     // Aggiorna l'hash dell'utente
     function updateHash(string memory newHash) public {
-        require(bytes(userHashes[msg.sender]).length != 0, "Nessun hash registrato");
+        //require(bytes(userHashes[msg.sender]).length != 0, "Nessun hash registrato");
         string memory oldHash = userHashes[msg.sender];
         userHashes[msg.sender] = newHash;
         emit HashUpdated(msg.sender, oldHash, newHash);
@@ -35,6 +35,8 @@ contract PasswordRegistryPlus {
     function verifyHash(string memory inputHash) public view returns (bool) {
         return keccak256(abi.encodePacked(userHashes[msg.sender])) == keccak256(abi.encodePacked(inputHash));
     }
+
+
 
     //Registra un hash con firma off-chain(firma generata fuori dalla blockchain)
     //Questo accade quando un utente non vuole inviare una transazione ma delega a qualcun'altro di farlo(mandandoli l'hash e la firma dell'hash
@@ -52,17 +54,21 @@ contract PasswordRegistryPlus {
         address signer = recoverSigner(messageHash, signature);
 
     
-        require(signer != address(0), "Firma non valida");
+        //require(signer != address(0), "Firma non valida");
         //require(bytes(userHashes[signer]).length == 0, "Hash gia registrato");
 
         userHashes[signer] = hash;
         emit HashRegistered(signer, hash);
     }
 
+    function getHashOf(address user) public view returns (string memory) {
+        return userHashes[user];
+}
+
  
     // funzione per capire chi ha firmato
     function recoverSigner(bytes32 messageHash, bytes memory signature) public pure returns (address) {
-        require(signature.length == 65, "Firma non valida");
+        //require(signature.length == 65, "Firma non valida");
 
         bytes32 r;
         bytes32 s;
