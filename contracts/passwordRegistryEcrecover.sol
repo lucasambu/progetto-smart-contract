@@ -45,9 +45,9 @@ contract PasswordRegistryPlus {
     //l'utente si limita a firmare il messaggio e qualcun'altro invia il messaggio allo smart contract, risparmio monetario
 
     //hash: è un hash che un utente vuole registrare
-    //signature: è la firma dell'hash   
+    //signature: è la firma dell'hash dell'hash perchè prima si effettua l'hash del messaggio(nel nostro caso un hash) e poi si firma
     function registerSigned(string memory hash, bytes memory signature) public {
-        bytes32 messageHash = getMessageHash(hash);
+        bytes32 messageHash = keccak256(abi.encodePacked(hash));
         //ricavo chi ha firmato
         address signer = recoverSigner(messageHash, signature);
 
@@ -59,11 +59,7 @@ contract PasswordRegistryPlus {
         emit HashRegistered(signer, hash);
     }
 
-    // Calcola l'hash del messaggio da firmare 
-    function getMessageHash(string memory hash) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(hash));
-    }
-
+ 
     // funzione per capire chi ha firmato
     function recoverSigner(bytes32 messageHash, bytes memory signature) public pure returns (address) {
         require(signature.length == 65, "Firma non valida");
