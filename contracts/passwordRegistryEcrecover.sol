@@ -82,16 +82,3 @@ contract PasswordRegistryPlus {
     }
 }
 
-/*
-Stiamo usando MetaMask per simulare Alice:
-
-Alice ha un indirizzo Ethereum creato in MetaMask
-
-Alice usa MetaMask per firmare un messaggio: "abc123"
-
-Noi prendiamo quella firma e la mandiamo al contratto, che la verifica
-
-MetaMask non invia nessuna transazione, si limita a firmare il messaggio → questo è gratuito 
-
-
-*/
