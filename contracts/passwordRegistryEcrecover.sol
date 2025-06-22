@@ -53,7 +53,7 @@ contract PasswordRegistryPlus {
 
     
         require(signer != address(0), "Firma non valida");
-        require(bytes(userHashes[signer]).length == 0, "Hash gia registrato");
+        //require(bytes(userHashes[signer]).length == 0, "Hash gia registrato");
 
         userHashes[signer] = hash;
         emit HashRegistered(signer, hash);
