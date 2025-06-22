@@ -11,9 +11,9 @@ contract PasswordRegistryPlus {
     event DebugBytes32(string label, bytes32 value);
 
     // Registra un nuovo hash con transazione classica
-    //memory è una variabile temporanea della funzione
-    //msg.sender rende univoco l'utente, è un indirizzo creato dalla propria chiave privata, firmando la richiesta ed
-    //è possibile utilizzare quell'indirizzo solo una volta, grazie ad un nonce
+    // memory è una variabile temporanea della funzione
+    // msg.sender rende univoco l'utente, è un indirizzo creato dalla propria chiave privata, firmando la richiesta ed
+    // è possibile utilizzare quell'indirizzo solo una volta, grazie ad un nonce
     function register(string memory hash) public {
         //require(bytes(userHashes[msg.sender]).length == 0, "Hash gia registrato");
         userHashes[msg.sender] = hash;
@@ -43,16 +43,16 @@ contract PasswordRegistryPlus {
     //Registra un hash con firma off-chain(firma generata fuori dalla blockchain)
     //Questo accade quando un utente non vuole inviare una transazione ma delega a qualcun'altro di farlo(mandandoli l'hash e la firma dell'hash
     //(la firma avviene off-chain cioè fuori dalla blockchain)) e quest'ultimo invia la transazione
-    //L'utente non firma l'hash che vuole inserire, ma effettua prima un hash dell'hash e poi firma
-    // in Solidity e in Ethereum le firme sono sempre fatte su bytes32
+    // in Solidity e in Ethereum le firme sono sempre fatte su bytes32, per questo sull'hash si effettua un keccak256
     // ecrecover(hash, v, r, s) accetta solo un bytes32 come primo parametro.
-    //l'utente si limita a firmare il messaggio e qualcun'altro invia il messaggio allo smart contract, risparmio monetario
+    //l'utente si limita a firmare il messaggio econdo lo standard Ethereum("\x19Ethereum Signed Message:\n32" + keccak256(hash)) e qualcun'altro invia 
+    //il messaggio allo smart contract, risparmio monetario
 
     //hash: è un hash che un utente vuole registrare
-    //signature: è la firma dell'hash dell'hash perchè prima si effettua l'hash del messaggio(nel nostro caso un hash) e poi si firma
+    //signature: è la firma dell'hash che è stato trasformato secondo lo standard Ethereum("\x19Ethereum Signed Message:\n32" + keccak256(hash))
     function registerSigned(string memory hash, bytes memory signature) public {
         bytes32 messageHash = keccak256(abi.encodePacked(hash));
-        
+
         //perché quando usi personal_sign, MetaMask aggiunge automaticamente un prefisso al messaggio prima di firmarlo. Quindi, per recuperare 
         //correttamente l'indirizzo del firmatario (signer) con ecrecover, devi ricreare esattamente lo stesso hash che MetaMask ha firmato.
         bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
