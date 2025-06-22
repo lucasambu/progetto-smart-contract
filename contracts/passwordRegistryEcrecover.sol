@@ -7,13 +7,15 @@ contract PasswordRegistryPlus {
     //esempi possibili eventi, smart contract comunica con essi all'esterno  
     event HashRegistered(address indexed user, string hash);
     event HashUpdated(address indexed user, string oldHash, string newHash);
+    event DebugAddress(string label, address value);
+    event DebugBytes32(string label, bytes32 value);
 
     // Registra un nuovo hash con transazione classica
     //memory è una variabile temporanea della funzione
     //msg.sender rende univoco l'utente, è un indirizzo creato dalla propria chiave privata, firmando la richiesta ed
     //è possibile utilizzare quell'indirizzo solo una volta, grazie ad un nonce
     function register(string memory hash) public {
-        require(bytes(userHashes[msg.sender]).length == 0, "Hash gia registrato");
+        //require(bytes(userHashes[msg.sender]).length == 0, "Hash gia registrato");
         userHashes[msg.sender] = hash;
         emit HashRegistered(msg.sender, hash);
     }
@@ -50,10 +52,15 @@ contract PasswordRegistryPlus {
     //signature: è la firma dell'hash dell'hash perchè prima si effettua l'hash del messaggio(nel nostro caso un hash) e poi si firma
     function registerSigned(string memory hash, bytes memory signature) public {
         bytes32 messageHash = keccak256(abi.encodePacked(hash));
+        
+        //perché quando usi personal_sign, MetaMask aggiunge automaticamente un prefisso al messaggio prima di firmarlo. Quindi, per recuperare 
+        //correttamente l'indirizzo del firmatario (signer) con ecrecover, devi ricreare esattamente lo stesso hash che MetaMask ha firmato.
+        bytes32 ethSignedHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", messageHash));
         //ricavo chi ha firmato
-        address signer = recoverSigner(messageHash, signature);
+        address signer = recoverSigner(ethSignedHash, signature);
 
-    
+        emit DebugBytes32("Message hash", messageHash);
+        emit DebugAddress("Signer calcolato", signer); 
         //require(signer != address(0), "Firma non valida");
         //require(bytes(userHashes[signer]).length == 0, "Hash gia registrato");
 
